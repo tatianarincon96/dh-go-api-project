@@ -1,18 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/tatianarincon96/dh-go-api-project/employees"
+	"github.com/tatianarincon96/dh-go-api-project/products"
 	"strconv"
 )
 
 func main() {
+	// Crear router
 	router := gin.Default()
+
+	// Home route
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, "¡Bienvenido a la empresa Gophers!")
 	})
+
+	// Endpoint de Empleados
 	router.GET("/employees", func(c *gin.Context) {
-		c.JSON(200, getEmployeeList())
+		c.JSON(200, employees.GetEmployeeList())
 	})
 	router.GET("/employees/:id", func(c *gin.Context) {
 		employeeId := c.Params.ByName("id")
@@ -20,7 +26,7 @@ func main() {
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Invalid id"})
 		}
-		e, er := getEmployeeById(intVar)
+		e, er := employees.GetEmployeeById(intVar)
 		if er != nil {
 			c.JSON(404, gin.H{"error": er.Error()})
 		} else {
@@ -33,67 +39,70 @@ func main() {
 		valueName := c.Query("name")
 		valueActive := c.Query("active")
 		boolVar, _ := strconv.ParseBool(valueActive)
-		e := Employee{
+		e := employees.Employee{
 			Id:     intVar,
 			Name:   valueName,
 			Active: boolVar,
 		}
-		newEmployeesList := addEmployee(e)
-		c.JSON(201, newEmployeesList)
+		newEmployeesList := employees.AddEmployee(e)
+		c.JSON(200, newEmployeesList)
 	})
 	router.GET("/employeesactive", func(c *gin.Context) {
-		c.JSON(200, getActiveEmployees(true))
+		c.JSON(200, employees.GetActiveEmployees(true))
 	})
 
-	router.Run(":8080")
-}
-
-type Employee struct {
-	Id     int
-	Name   string
-	Active bool
-}
-
-func getActiveEmployees(isActive bool) any {
-	var activeEmployees []Employee
-	var noActiveEmployees []Employee
-	employees := getEmployeeList()
-	for _, e := range employees {
-		if e.Active {
-			activeEmployees = append(activeEmployees, e)
+	// Endpoint de Productos
+	router.GET("/productparams", func(c *gin.Context) {
+		valueId := c.Query("id")
+		intId, _ := strconv.Atoi(valueId)
+		valueName := c.Query("name")
+		valueQuantity := c.Query("quantity")
+		intQuantity, _ := strconv.Atoi(valueQuantity)
+		valueCodeValue := c.Query("code_value")
+		valueIsPublished := c.Query("is_published")
+		boolVar, _ := strconv.ParseBool(valueIsPublished)
+		valueExpiration := c.Query("expiration")
+		valuePrice := c.Query("price")
+		floatVar, _ := strconv.ParseFloat(valuePrice, 64)
+		p := products.Product{
+			Id:          intId,
+			Name:        valueName,
+			Quantity:    intQuantity,
+			CodeValue:   valueCodeValue,
+			IsPublished: boolVar,
+			Expiration:  valueExpiration,
+			Price:       floatVar,
+		}
+		products.AddProduct(p)
+		c.JSON(200, gin.H{"product": p})
+	})
+	router.GET("/products/:id", func(c *gin.Context) {
+		productId := c.Params.ByName("id")
+		intVar, err := strconv.Atoi(productId)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Invalid id"})
+		}
+		e, er := products.GetProductById(intVar)
+		if er != nil {
+			c.JSON(404, gin.H{"error": er.Error()})
 		} else {
-			noActiveEmployees = append(noActiveEmployees, e)
+			c.JSON(200, e)
 		}
-	}
-	if isActive {
-		return activeEmployees
-	} else {
-		return noActiveEmployees
-	}
-}
+	})
+	router.GET("/products/searchbyquantity", func(c *gin.Context) {
+		minLimit := c.Query("min_limit")
+		intMinLimit, _ := strconv.Atoi(minLimit)
+		maxLimit := c.Query("max_limit")
+		intMaxLimit, _ := strconv.Atoi(maxLimit)
+		c.JSON(200, products.GetProductsByQuantity(intMinLimit, intMaxLimit))
+	})
+	router.GET("/products/buy", func(c *gin.Context) {
+		codeValue := c.Query("code_value")
+		quantityToBuy := c.Query("quantity_to_buy")
+		intQuantityToBuy, _ := strconv.Atoi(quantityToBuy)
+		c.JSON(200, products.BuyProduct(codeValue, intQuantityToBuy))
+	})
 
-func addEmployee(e Employee) []Employee {
-	employees := getEmployeeList()
-	employees = append(employees, e)
-	return employees
-}
-
-func getEmployeeList() []Employee {
-	return []Employee{
-		{Id: 1, Name: "John", Active: true},
-		{Id: 2, Name: "Mary", Active: true},
-		{Id: 3, Name: "Mike", Active: false},
-		{Id: 4, Name: "Adam", Active: true},
-		{Id: 5, Name: "Peter", Active: false},
-	}
-}
-
-func getEmployeeById(id int) (Employee, error) {
-	employees := getEmployeeList()
-	for _, employee := range employees {
-		if employee.Id == id {
-			return employee, nil
-		}
-	}
-	return Employee{}, fmt.Errorf("employee not found")
+	// Iniciar el servidor
+	router.Run(":8080")
 }
