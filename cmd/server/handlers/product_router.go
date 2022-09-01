@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func NewProductRouter(e *gin.Engine, list []domain.Product) {
+func NewProductRouter(e *gin.Engine, list []domain.Product, lastID int) {
 	products := e.Group("/api/v1/product")
 	{
 		products.GET("", GetAllProducts(list))
@@ -15,6 +15,7 @@ func NewProductRouter(e *gin.Engine, list []domain.Product) {
 		products.GET("/searchbyquantity", SearchProduct(list))
 		products.GET("/buy", BuyProduct(list))
 		products.GET("/add", AddProduct(list))
+		products.POST("/addNew", AddNewProduct(list, lastID))
 	}
 }
 
@@ -33,7 +34,7 @@ func GetProductById(list []domain.Product) gin.HandlerFunc {
 		}
 		p, e := product.GetProductById(list, id)
 		if e != nil {
-			c.JSON(404, gin.H{"error": e})
+			c.JSON(404, e)
 		}
 		c.JSON(200, p)
 	}
@@ -82,5 +83,18 @@ func AddProduct(list []domain.Product) gin.HandlerFunc {
 		}
 		product.AddProduct(list, p)
 		c.JSON(200, gin.H{"product": p})
+	}
+}
+
+func AddNewProduct(list []domain.Product, lastID int) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var p domain.Product
+		if err := c.ShouldBindJSON(&p); err != nil {
+			c.JSON(400, gin.H{"error": err})
+			return
+		}
+		p.Id = lastID + 1
+		list = append(list, p)
+		c.JSON(200, p)
 	}
 }
