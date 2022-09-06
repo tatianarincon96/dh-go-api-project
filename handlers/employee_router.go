@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tatianarincon96/dh-go-api-project/cmd/server/internal/domain"
-	"github.com/tatianarincon96/dh-go-api-project/cmd/server/internal/employee"
+	"github.com/tatianarincon96/dh-go-api-project/internal/domain"
+	"github.com/tatianarincon96/dh-go-api-project/internal/employee"
 	"strconv"
 )
 

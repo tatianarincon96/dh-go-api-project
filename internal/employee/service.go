@@ -2,7 +2,7 @@ package employee
 
 import (
 	"fmt"
-	"github.com/tatianarincon96/dh-go-api-project/cmd/server/internal/domain"
+	"github.com/tatianarincon96/dh-go-api-project/internal/domain"
 )
 
 func GetActiveEmployees(list []domain.Employee, checkActive bool) any {
