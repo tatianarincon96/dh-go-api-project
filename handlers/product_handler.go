@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/tatianarincon96/dh-go-api-project/internal/domain"
 	"github.com/tatianarincon96/dh-go-api-project/internal/product"
 	"github.com/tatianarincon96/dh-go-api-project/pkg/store"
 	"github.com/tatianarincon96/dh-go-api-project/pkg/web"
+	"net/http"
 	"os"
 	"strconv"
 )
@@ -196,15 +198,23 @@ func (h *productHandler) UpdateField() gin.HandlerFunc {
 			return
 		}
 
-		var newProduct domain.Product
-		err := ctx.ShouldBindJSON(&newProduct)
+		productId := ctx.Param("id")
+		id, err := strconv.Atoi(productId)
 		if err != nil {
-			web.Failure(ctx, 400, errors.New("invalid product"))
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		p, err := h.s.UpdateField(newProduct)
+
+		var productRequest domain.Product
+		err = ctx.ShouldBindJSON(&productRequest)
 		if err != nil {
-			web.Failure(ctx, 404, errors.New("product not found to update"))
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		p, er := h.s.UpdateField(productRequest)
+		if er != nil {
+			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("product with id %d not found", id)})
 			return
 		}
 		web.Success(ctx, 200, p)
