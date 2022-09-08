@@ -12,6 +12,7 @@ type Repository interface {
 	Create(p domain.Product) (domain.Product, error)
 	Update(p domain.Product) (domain.Product, error)
 	DeleteByID(id int) error
+	UpdateField(id int, p domain.Product) (domain.Product, error)
 }
 
 type repository struct {
@@ -49,7 +50,7 @@ func (r *repository) SearchPriceGt(price float64) []domain.Product {
 	return products
 }
 
-// Create agrega un nuevo producto
+// Update actualiza un producto
 func (r *repository) Update(p domain.Product) (domain.Product, error) {
 	if !r.validateCodeValueExceptId(p.CodeValue, p.Id) {
 		return domain.Product{}, errors.New("code value already exists")
@@ -66,7 +67,7 @@ func (r *repository) Update(p domain.Product) (domain.Product, error) {
 	return r.list[index], nil
 }
 
-// Update actualiza un nuevo producto
+// Create crea un nuevo producto
 func (r *repository) Create(p domain.Product) (domain.Product, error) {
 	if !r.validateCodeValue(p.CodeValue) {
 		return domain.Product{}, errors.New("code value already exists")
@@ -88,6 +89,20 @@ func (r *repository) DeleteByID(id int) error {
 	}
 	r.list = removeItem(r.list, index)
 	return nil
+}
+
+// UpdateField actualiza un campo de un producto
+func (r *repository) UpdateField(id int, p domain.Product) (domain.Product, error) {
+	originalProduct, err := r.GetByID(id)
+	if err != nil {
+		return p, err
+	}
+	index, err := r.getIndex(p.Id)
+	if err != nil {
+		return domain.Product{}, err
+	}
+	r.list[index] = setAttributeInProduct(p, originalProduct)
+	return r.list[index], nil
 }
 
 // validateCodeValue valida que el codigo no exista en la lista de productos
@@ -117,6 +132,28 @@ func setProduct(new domain.Product, original domain.Product) domain.Product {
 	original.Name = new.Name
 	original.Price = new.Price
 	original.Quantity = new.Quantity
+	return original
+}
+
+func setAttributeInProduct(new domain.Product, original domain.Product) domain.Product {
+	if new.CodeValue != "" {
+		original.CodeValue = new.CodeValue
+	}
+	if new.Expiration != "" {
+		original.Expiration = new.Expiration
+	}
+	if new.IsPublished != original.IsPublished {
+		original.IsPublished = new.IsPublished
+	}
+	if new.Name != "" {
+		original.Name = new.Name
+	}
+	if new.Price != 0 {
+		original.Price = new.Price
+	}
+	if new.Quantity != 0 {
+		original.Quantity = new.Quantity
+	}
 	return original
 }
 

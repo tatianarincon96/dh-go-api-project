@@ -12,6 +12,7 @@ type Service interface {
 	Create(p domain.Product) (domain.Product, error)
 	Update(p domain.Product) (domain.Product, error)
 	DeleteByID(id int) error
+	UpdateField(p domain.Product) (domain.Product, error)
 }
 
 type service struct {
@@ -71,6 +72,15 @@ func (s *service) DeleteByID(id int) error {
 		return err
 	}
 	return nil
+}
+
+// Patch actualiza un campo del producto
+func (s *service) UpdateField(p domain.Product) (domain.Product, error) {
+	product, err := s.r.UpdateField(p.Id, p)
+	if err != nil {
+		return domain.Product{}, err
+	}
+	return product, nil
 }
 
 /*

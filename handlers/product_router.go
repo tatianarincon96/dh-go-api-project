@@ -5,6 +5,7 @@ import (
 )
 
 func NewProductRouter(e *gin.Engine, h productHandler) {
+	// Validar token de forma central con middleware
 	products := e.Group("/api/v1/products")
 	{
 		products.GET("", h.GetAll())
@@ -13,6 +14,7 @@ func NewProductRouter(e *gin.Engine, h productHandler) {
 		products.POST("", h.Create())
 		products.PUT("", h.Update())
 		products.DELETE("/:id", h.DeleteByID())
+		products.PATCH("", h.UpdateField())
 		//products.GET("/searchbyquantity", SearchProduct(list))
 		//products.GET("/buy", BuyProduct(list))
 	}

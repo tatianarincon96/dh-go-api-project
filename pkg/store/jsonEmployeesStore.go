@@ -1,4 +1,4 @@
-package product
+package store
 
 import (
 	"encoding/json"
@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func LoadProducts(path string) []domain.Product {
-	list := []domain.Product{}
+func LoadEmployees(path string) []domain.Employee {
+	list := []domain.Employee{}
 
 	file, err := os.ReadFile(path)
 	if err != nil {
