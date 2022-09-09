@@ -1,0 +1,25 @@
+definitions:
+  web.response:
+    properties:
+      data: {}
+    type: object
+info:
+  contact: {}
+  description: This API handles Supermarket products.
+  termsOfService: http://localhost:8080/terms
+  title: PRODUCTS Service API
+  version: 1.0.0
+paths:
+  /api/v1/products:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.response'
+      summary: Get all products
+      tags:
+      - domain.Product
+swagger: "2.0"
