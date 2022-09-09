@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type productHandler struct {
@@ -73,6 +74,30 @@ func (h *productHandler) Search() gin.HandlerFunc {
 			return
 		}
 		web.Success(ctx, 200, products)
+	}
+}
+
+// ConsumerPrice calcula el precio de un producto
+func (h *productHandler) ConsumerPrice() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ids := ctx.Query("list")
+		idsList := strings.Split(ids, ",")
+		var intIdList []int
+		for _, id := range idsList {
+			intId, err := strconv.Atoi(id)
+			if err != nil {
+				web.Failure(ctx, 400, errors.New("invalid id"))
+				return
+			}
+			intIdList = append(intIdList, intId)
+		}
+
+		finalPurchase, err := h.s.GetFinalPurchase(intIdList)
+		if err != nil {
+			web.Failure(ctx, 404, errors.New("no products found"))
+			return
+		}
+		web.Success(ctx, 200, finalPurchase)
 	}
 }
 

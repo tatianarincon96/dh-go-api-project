@@ -3,12 +3,14 @@ package product
 import (
 	"errors"
 	"github.com/tatianarincon96/dh-go-api-project/internal/domain"
+	"math"
 )
 
 type Service interface {
 	GetAll() ([]domain.Product, error)
 	GetById(id int) (domain.Product, error)
 	SearchPriceGt(price float64) ([]domain.Product, error)
+	GetFinalPurchase(intIdList []int) (domain.Compra, error)
 	Create(p domain.Product) (domain.Product, error)
 	Update(p domain.Product) (domain.Product, error)
 	DeleteByID(id int) error
@@ -45,6 +47,30 @@ func (s *service) SearchPriceGt(price float64) ([]domain.Product, error) {
 		return []domain.Product{}, errors.New("no products found")
 	}
 	return l, nil
+}
+
+// GetFinalPurchase devuelve el total de la compra
+func (s *service) GetFinalPurchase(intIdList []int) (domain.Compra, error) {
+	var products []domain.Product
+	var totalPrice float64
+	for _, id := range intIdList {
+		product, err := s.r.GetByID(id)
+		if err != nil {
+			return domain.Compra{}, err
+		}
+		if product.IsPublished && product.Quantity > 0 {
+			products = append(products, product)
+			totalPrice += product.Price
+		}
+	}
+	if len(products) < 10 {
+		totalPrice *= 1.21
+	} else if len(products) <= 20 {
+		totalPrice *= 1.17
+	} else {
+		totalPrice *= 1.15
+	}
+	return domain.Compra{Products: products, TotalPrice: math.Round(totalPrice*100) / 100}, nil
 }
 
 // Create agrega un nuevo producto

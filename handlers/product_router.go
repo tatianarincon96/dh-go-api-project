@@ -11,6 +11,7 @@ func NewProductRouter(e *gin.Engine, h productHandler) {
 		products.GET("", h.GetAll())
 		products.GET("/:id", h.GetById())
 		products.GET("/search", h.Search())
+		products.GET("/consumer_price", h.ConsumerPrice())
 		products.POST("", h.Create())
 		products.PUT("", h.Update())
 		products.DELETE("/:id", h.DeleteByID())
