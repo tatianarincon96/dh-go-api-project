@@ -8,6 +8,15 @@ import (
 	"os"
 )
 
+// @title PRODUCTS Service API
+// @version 1.0.0
+// @description This API handles Supermarket products.
+// @termsOfService http://localhost:8080/terms
+
+// contact.name Tatiana Rincon
+// contact.email
+
+// lince.name Apache 2.0
 func main() {
 	// Crear router
 	router := gin.Default()

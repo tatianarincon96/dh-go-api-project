@@ -34,6 +34,11 @@ func InitProductHandler() *productHandler {
 }
 
 // GetAll obtiene todos los productos
+// @Summary Get all products
+// @Tags domain.Product
+// @Produce json
+// @Success 200 {object} web.response
+// @Router /api/v1/products [get]
 func (h *productHandler) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		products, _ := h.s.GetAll()
