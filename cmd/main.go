@@ -53,3 +53,48 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+/*
+func main() {
+
+	ctx := context.Background()
+
+	fx.New(
+		fx.Provide(
+			product.NewRepository,
+			product.NewService,
+			handlerProduct.NewHandler,
+			routerProduct.NewProductRouter,
+		),
+		fx.Invoke(
+			LifecycleHooks,
+		),
+	).Start(ctx)
+
+}
+
+// LifecycleHooks - Inicializa los hooks de la aplicación en el ciclo de vida de la misma
+func LifecycleHooks(lc fx.Lifecycle, router routerProduct.IRouter) {
+	lc.Append(fx.Hook{
+		OnStart: func(c context.Context) error {
+
+			log.Print("Starting server")
+
+			r := gin.Default()
+			r = router.GetRoutes(r)
+			err := r.Run(":8080")
+			if err != nil {
+				return err
+			}
+
+			return nil
+
+		},
+		OnStop: func(c context.Context) error {
+			log.Print("Stopping...")
+			return nil
+		},
+	})
+}
+
+*/
